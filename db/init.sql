@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS message (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    body TEXT NOT NULL,
+    priority INT NOT NULL,
+    type INT NOT NULL
+);
