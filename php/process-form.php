@@ -1,45 +1,39 @@
 <?php
+// Database configuration
+$servername = "db";           // docker-compose service name
+$username = "user";            // MySQL user
+$password = "userpassword";    // MySQL password
+$dbname = "mydb";              // database name
 
-$name = $_POST["name"];
-$message = $_POST["message"];
-$priority = filter_input(INPUT_POST, "priority", FILTER_VALIDATE_INT);
-$type = filter_input(INPUT_POST, "type", FILTER_VALIDATE_INT);
-$terms = filter_input(INPUT_POST, "terms", FILTER_VALIDATE_BOOL);
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-if ( ! $terms) {
-    die("Terms must be accepted");
-}   
-
-$host = "db";   // docker-compose service name
-$dbname = "message_db";
-$username = "root";
-$password = "root";   // matches MYSQL_ROOT_PASSWORD
-        
-$conn = mysqli_connect(hostname: $host,
-                       username: $username,
-                       password: $password,
-                       database: $dbname);
-        
-if (mysqli_connect_errno()) {
-    die("Connection error: " . mysqli_connect_error());
-}           
-        
-$sql = "INSERT INTO message (name, body, priority, type)
-        VALUES (?, ?, ?, ?)";
-
-$stmt = mysqli_stmt_init($conn);
-
-if ( ! mysqli_stmt_prepare($stmt, $sql)) {
- 
-    die(mysqli_error($conn));
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-mysqli_stmt_bind_param($stmt, "ssii",
-                       $name,
-                       $message,
-                       $priority,
-                       $type);
+// Only process POST requests
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = $_POST['name'] ?? '';
+    $message = $_POST['message'] ?? '';
+    $priority = $_POST['priority'] ?? 2;
+    $type = $_POST['type'] ?? 1;
+    $terms = isset($_POST['terms']) ? 1 : 0;
 
-mysqli_stmt_execute($stmt);
+    // Prepare and bind
+    $stmt = $conn->prepare("INSERT INTO contacts (name, message, priority, type, terms) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssiii", $name, $message, $priority, $type, $terms);
 
-echo "Record saved.";
+    if ($stmt->execute()) {
+        echo "<h2>Your message has been submitted successfully!</h2>";
+        echo "<a href='index.php'>Go back to form</a>";
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+
+    $stmt->close();
+}
+
+$conn->close();
+?>
