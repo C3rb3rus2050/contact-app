@@ -2,10 +2,8 @@ version: '3.8'
 
 services:
   web:
-    image: php:8.2-apache
+    build: ./php
     container_name: php_app
-    volumes:
-      - ./php:/var/www/html
     ports:
       - "8070:80"
     depends_on:
