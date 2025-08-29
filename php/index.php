@@ -1,13 +1,12 @@
 <?php
 include 'db.php';
 
-// Load entry if searched
+// Load entry if id is provided
 $editUser = null;
-if (!empty($_GET['search'])) {
-    $search = $_GET['search'];
-    $stmt = $conn->prepare("SELECT * FROM users WHERE name LIKE ?");
-    $like = "%$search%";
-    $stmt->bind_param("s", $like);
+if (!empty($_GET['id'])) {
+    $id = $_GET['id'];
+    $stmt = $conn->prepare("SELECT * FROM users WHERE id=?");
+    $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
     $editUser = $result->fetch_assoc();
@@ -23,19 +22,12 @@ $conn->close();
 <!DOCTYPE html>
 <html>
 <head>
-    <title>User Form</title>
+    <title>User Management</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.min.css">
 </head>
 <body>
     <h1>User Form</h1>
 
-    <!-- Search form -->
-    <form method="get">
-        <input type="text" name="search" placeholder="Search by name" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-        <button type="submit">Search</button>
-    </form>
-
-    <!-- Add / Edit form -->
     <form action="process-form.php" method="post">
         <input type="hidden" name="id" value="<?= $editUser['id'] ?? '' ?>">
         <label>Name</label>
@@ -54,7 +46,7 @@ $conn->close();
             <td><?= htmlspecialchars($user['name']) ?></td>
             <td><?= htmlspecialchars($user['email']) ?></td>
             <td>
-                <a href="?search=<?= urlencode($user['name']) ?>">Load</a>
+                <a href="?id=<?= $user['id'] ?>">Edit</a>
             </td>
         </tr>
         <?php endforeach; ?>
