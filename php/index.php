@@ -13,10 +13,10 @@
     <form action="process-form.php" method="post">
 
         <label for="name">Name</label>
-        <input type="text" id="name" name="name">
+        <input type="text" id="name" name="name" required>
         
         <label for="message">Message</label>
-        <textarea id="message" name="message"></textarea>
+        <textarea id="message" name="message" required></textarea>
 
         <label for="priority">Priority</label>
         <select id="priority" name="priority">
@@ -49,7 +49,7 @@
 
         <br>
 
-        <button>Send</button>
+        <button type="submit">Send</button>
 
     </form>
 
