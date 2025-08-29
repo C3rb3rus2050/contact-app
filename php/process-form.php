@@ -10,10 +10,10 @@ if ( ! $terms) {
     die("Terms must be accepted");
 }   
 
-$host = "localhost";
+$host = "db";
 $dbname = "message_db";
-$username = "root";
-$password = "";
+$username = "appuser";
+$password = "apppass";
         
 $conn = mysqli_connect(hostname: $host,
                        username: $username,
