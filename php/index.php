@@ -1,23 +1,22 @@
 <?php
 include 'db.php';
 
-// Search
-$search = $_GET['search'] ?? '';
-$users = [];
-
-if ($search) {
+// Load entry if searched
+$editUser = null;
+if (!empty($_GET['search'])) {
+    $search = $_GET['search'];
     $stmt = $conn->prepare("SELECT * FROM users WHERE name LIKE ?");
     $like = "%$search%";
     $stmt->bind_param("s", $like);
     $stmt->execute();
     $result = $stmt->get_result();
-    $users = $result->fetch_all(MYSQLI_ASSOC);
+    $editUser = $result->fetch_assoc();
     $stmt->close();
-} else {
-    $result = $conn->query("SELECT * FROM users");
-    $users = $result->fetch_all(MYSQLI_ASSOC);
 }
 
+// Load all users for display
+$result = $conn->query("SELECT * FROM users ORDER BY created_at DESC");
+$users = $result->fetch_all(MYSQLI_ASSOC);
 $conn->close();
 ?>
 
@@ -30,23 +29,23 @@ $conn->close();
 <body>
     <h1>User Form</h1>
 
-    <!-- Form -->
-    <form action="process-form.php" method="post">
-        <input type="hidden" name="id" id="id">
-        <label>Name</label>
-        <input type="text" name="name" id="name" required>
-        <label>Email</label>
-        <input type="email" name="email" id="email" required>
-        <button type="submit">Submit</button>
-    </form>
-
-    <h2>Search Users</h2>
+    <!-- Search form -->
     <form method="get">
-        <input type="text" name="search" placeholder="Search by name" value="<?= htmlspecialchars($search) ?>">
+        <input type="text" name="search" placeholder="Search by name" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
         <button type="submit">Search</button>
     </form>
 
-    <h2>Users</h2>
+    <!-- Add / Edit form -->
+    <form action="process-form.php" method="post">
+        <input type="hidden" name="id" value="<?= $editUser['id'] ?? '' ?>">
+        <label>Name</label>
+        <input type="text" name="name" value="<?= htmlspecialchars($editUser['name'] ?? '') ?>" required>
+        <label>Email</label>
+        <input type="email" name="email" value="<?= htmlspecialchars($editUser['email'] ?? '') ?>" required>
+        <button type="submit"><?= $editUser ? "Update" : "Add" ?></button>
+    </form>
+
+    <h2>All Users</h2>
     <table>
         <tr><th>ID</th><th>Name</th><th>Email</th><th>Action</th></tr>
         <?php foreach($users as $user): ?>
@@ -55,19 +54,10 @@ $conn->close();
             <td><?= htmlspecialchars($user['name']) ?></td>
             <td><?= htmlspecialchars($user['email']) ?></td>
             <td>
-                <button onclick="editUser(<?= $user['id'] ?>,'<?= htmlspecialchars($user['name'], ENT_QUOTES) ?>','<?= htmlspecialchars($user['email'], ENT_QUOTES) ?>')">Edit</button>
+                <a href="?search=<?= urlencode($user['name']) ?>">Load</a>
             </td>
         </tr>
         <?php endforeach; ?>
     </table>
-
-    <script>
-        function editUser(id, name, email) {
-            document.getElementById('id').value = id;
-            document.getElementById('name').value = name;
-            document.getElementById('email').value = email;
-            window.scrollTo(0,0);
-        }
-    </script>
 </body>
 </html>
