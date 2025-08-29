@@ -7,14 +7,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'] ?? '';
 
     if ($id) {
-        // Update existing user
+        // Update existing entry
         $stmt = $conn->prepare("UPDATE users SET name=?, email=? WHERE id=?");
         $stmt->bind_param("ssi", $name, $email, $id);
         $stmt->execute();
         $stmt->close();
         echo "User updated successfully!";
     } else {
-        // Insert new user
+        // Insert new entry
         $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
         $stmt->bind_param("ss", $name, $email);
         $stmt->execute();
