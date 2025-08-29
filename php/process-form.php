@@ -10,10 +10,10 @@ if ( ! $terms) {
     die("Terms must be accepted");
 }   
 
-$host = "db";
+$host = "db";   // docker-compose service name
 $dbname = "message_db";
-$username = "appuser";
-$password = "apppass";
+$username = "root";
+$password = "root";   // matches MYSQL_ROOT_PASSWORD
         
 $conn = mysqli_connect(hostname: $host,
                        username: $username,
